@@ -1,0 +1,196 @@
+<!doctype html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css">
+        <!-- script src="js/vendor/modernizr-2.8.3.min.js"></script-->
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.32.min.js"></script>
+        <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+        <style>
+            td { font-family: 'monospace'; font-size: xx-small; }
+        </style>
+    </head>
+
+        <script type="text/javascript">
+
+            var awsKey;
+            var awsSecret;
+            var awsRegion;
+            var cloudwatchlogs;
+
+            function onAwsCredsChange() {
+/*                awsKey = $('#awskey').val();
+                awsSecret = $('#awssecret').val();
+                awsRegion = $('#awsregion').val();
+
+                if ((typeof awsKey === "string") && (typeof awsSecret === "string")) {
+                    AWS.config.update({accessKeyId: awsKey, secretAccessKey: awsSecret});
+                    AWS.config.region = awsRegion;
+                    cloudwatchlogs = new AWS.CloudWatchLogs();
+
+                    cloudwatchlogs.describeLogGroups({}, function(err, data) {
+                        if (err) console.log(err, err.stack); // an error occurred
+                        else {
+                            console.log(data);           // successful response
+
+                            $('loggroup').empty();
+
+                            data.logGroups.forEach(function (entry) {
+                                $('loggroup').append('<option value="' + entry.logGroupName + '">' + entry.logGroupName + '</option>');
+                            });
+                        }
+                    });
+                }
+*/            }
+
+            function onAwsRegionChange() {
+/*                awsRegion = $('#awsregion').val();
+                AWS.config.region = awsRegion;
+                cloudwatchlogs = new AWS.CloudWatchLogs();
+*/            }
+
+            function getLogs() {
+
+                var awsKey = $('#awskey').val();
+                var awsSecret = $('#awssecret').val();
+                var awsRegion = $('#awsregion').val();
+                var logGroup = $('#loggroup').val();
+                var filterPattern = $('#filterPattern').val();
+                var endTime = Date.now();
+                var period = parseInt( $('#period').val() ) * 60000;
+                var startTime = endTime - period;
+
+                AWS.config.update({accessKeyId: awsKey, secretAccessKey: awsSecret});
+                AWS.config.region = awsRegion;
+
+                cloudwatchlogs = new AWS.CloudWatchLogs();
+
+                var events = [];
+                var nextToken = null;
+                var done = false;
+
+                var asyncLoop = function(o) {
+
+                    var loop = function() {
+
+                        if (done === true) { o.callback(); return; }
+
+                        o.functionToLoop(loop);
+
+                    }
+                    loop([]);//init
+                }
+
+                asyncLoop({
+                    functionToLoop : function(loop) {
+
+                        var params = {
+                            logGroupName: logGroup, /* required */
+                            startTime: startTime,
+                            endTime: endTime,
+                            filterPattern: filterPattern,
+                            // interleaved: true || false,
+                             limit: 10000,
+                            // logStreamNames: [
+                            //     'STRING_VALUE',
+                            //     /* more items */
+                            // ],
+                            nextToken: nextToken
+                        };
+
+                        cloudwatchlogs.filterLogEvents(params, function(err, data) {
+                            if (err) console.log(err, err.stack); // an error occurred
+                            else {
+                                // console.log(data);           // successful response
+
+                                events.push.apply(events, data.events);
+
+                                if (!("nextToken" in data)) done = true;
+
+                                nextToken = data.nextToken;
+
+                                loop();
+                            }
+                        });
+                    },
+
+                    callback : function () {
+
+                        table = $('#logs').DataTable({
+                            //retrieve: true,
+                            destroy: true,
+                            data: events,
+                            columns: [
+                               // {data: "eventId"},
+                                {width: "10%", data: "timestamp",
+                                    'mRender': function ( data, type, full ) {
+                                        if (data) {
+                                            var mDate = moment.utc(data);
+                                            return (mDate && mDate.isValid()) ? mDate.format("YYYY-MM-DD HH:mm:ss.SSS") : "";
+                                        }
+                                        return "";
+                                    }
+                                },
+                                // {data: "ingestionTime"},
+                                {width: "70%", data: "message"},
+                                {width: "20%", data: "logStreamName"}
+                            ]
+                        });
+                    }
+                });
+            }
+        </script>
+
+        AWS Key: <input type="text" id="awskey" value="" onchange="onAwsCredsChange()"><br/>
+        AWS Secret: <input type="text" id="awssecret" value="" onchange="onAwsCredsChange()"><br/>
+        Region:
+        <select id="awsregion" onchange="onAwsRegionChange()">
+            <option value="eu-west-1">eu-west-1</option>
+            <option value="eu-central-1">eu-central-1</option>
+        </select><br/>
+        Log Group:
+        <select id="loggroup">
+            <option value="tos-test">tos-test</option>
+            <option value="api-test">api-test</option>
+            <option value="api-prod">api-prod</option>
+        </select><br/>
+        Cloudwatch Filter: <input type="text" id="filterPattern" value=""><br/>
+        Period (minutes):
+        <select id="period">
+            <option value="1">1</option>
+            <option value="5">5</option>
+            <option value="15">15</option>
+            <option value="60">60</option>
+            <option value="120">120</option>
+            <option value="240">240</option>
+            <option value="480">480</option>
+            <option value="720">720</option>
+            <option value="1440">1440</option>
+        </select><br/>
+        <button onclick="getLogs()">Get logs</button>
+
+
+        <table id="logs" class="display" data-order='[[ 0, "desc" ]]' data-page-length='100'>
+            <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Message</th>
+                <th>Log stream</th>
+            </tr>
+            </thead>
+        </table>
+
+
+    </body>
+</html>
