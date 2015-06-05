@@ -1,6 +1,6 @@
-# Contributing to HTML5 Boilerplate
+# Contributing to AWS Log Viewer
 
-♥ [HTML5 Boilerplate](https://html5boilerplate.com) and want to get involved?
+♥ [AWS Log Viewer](http://awslogviewer.s3-website-eu-west-1.amazonaws.com/) and want to get involved?
 Thanks! There are plenty of ways you can help!
 
 Please take a moment to review this document in order to make the contribution
@@ -14,23 +14,15 @@ patches and features.
 
 ## Using the issue tracker
 
-The [issue tracker](https://github.com/h5bp/html5-boilerplate/issues) is
+The [issue tracker](https://github.com/citizenme/awslogviewer/issues/) is
 the preferred channel for [bug reports](#bugs), [features requests](#features)
 and [submitting pull requests](#pull-requests), but please respect the following
 restrictions:
 
-* Please **do not** use the issue tracker for personal support requests (use
-  [Stack Overflow](https://stackoverflow.com/questions/tagged/html5boilerplate)).
+* Please **do not** use the issue tracker for personal support requests.
 
 * Please **do not** derail or troll issues. Keep the discussion on topic and
   respect the opinions of others.
-
-* Please **do not** open issues or pull requests regarding the code in
-  [`.htaccess`](https://github.com/h5bp/server-configs-apache),
-  [`jQuery`](https://github.com/jquery/jquery/),
-  [`Modernizr`](https://github.com/Modernizr/Modernizr) or
-  [`Normalize.css`](https://github.com/necolas/normalize.css) (open them in
-  their respective repositories).
 
 
 <a name="bugs"></a>
@@ -107,11 +99,11 @@ included in the project:
 
    ```bash
    # Clone your fork of the repo into the current directory
-   git clone https://github.com/<your-username>/html5-boilerplate.git
+   git clone https://github.com/citizenme/awslogviewer.git
    # Navigate to the newly cloned directory
-   cd html5-boilerplate
+   cd awslogviewer
    # Assign the original repo to a remote called "upstream"
-   git remote add upstream https://github.com/h5bp/html5-boilerplate.git
+   git remote add upstream https://github.com/citizenme/awslogviewer.git
    ```
 
 2. If you cloned a while ago, get the latest changes from upstream:
@@ -150,4 +142,4 @@ included in the project:
     with a clear title and description.
 
 **IMPORTANT**: By submitting a patch, you agree to allow the project
-owners to license your work under the terms of the [MIT License](LICENSE.txt).
+owners to license your work under the terms of the [Apache License Version 2.0](LICENSE).
